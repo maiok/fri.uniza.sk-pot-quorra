@@ -69,7 +69,7 @@ namespace Quorra.App
 
                     _dbContext.UpdateUser(_user);
                 }
-                _mainWindow.RefreshListUsers(_dbContext.GetUsers().ToList());
+                _mainWindow.RefreshListUsers(_dbContext.GetUsers().ToList(), false);
                 Close();
             }
         }

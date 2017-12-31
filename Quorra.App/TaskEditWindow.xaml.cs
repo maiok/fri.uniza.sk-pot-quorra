@@ -116,7 +116,7 @@ namespace Quorra.App
 
                     _dbContext.UpdateTask(_task);
                 }
-                _mainWindow.RefreshListTasks(_dbContext.GetTasks().ToList());
+                _mainWindow.RefreshListTasks(_dbContext.GetTasks().ToList(), false);
                 Close();
             }
         }

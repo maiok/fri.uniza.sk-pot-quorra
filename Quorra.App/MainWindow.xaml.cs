@@ -33,7 +33,7 @@ namespace Quorra.App
             _selectedUser = null;
         }
 
-        public void RefreshListUsers(List<QUser> userList)
+        public void RefreshListUsers(List<QUser> userList, bool deactivateButtons)
         {
             UserList = userList;
             try
@@ -47,11 +47,14 @@ namespace Quorra.App
             // Aktualizujem pocty
             RefreshUserFilteredCounts();
             // Deaktivujem tlacidla akcii
-            ButtonEditUser.IsEnabled = false;
-            ButtonRemoveUser.IsEnabled = false;
+            if (deactivateButtons)
+            {
+                ButtonEditUser.IsEnabled = false;
+                ButtonRemoveUser.IsEnabled = false;
+            }
         }
 
-        public void RefreshListProjects(List<QProject> projectList)
+        public void RefreshListProjects(List<QProject> projectList, bool deactivateButtons)
         {
             ProjectList = projectList;
             try
@@ -65,11 +68,14 @@ namespace Quorra.App
             // Aktualizujem pocty
             RefreshProjectFilteredCounts();
             // Deaktivujem tlacidla akcii
-            ButtonEditProject.IsEnabled = false;
-            ButtonRemoveProject.IsEnabled = false;
+            if (deactivateButtons)
+            {
+                ButtonEditProject.IsEnabled = false;
+                ButtonRemoveProject.IsEnabled = false;
+            }
         }
 
-        public void RefreshListTasks(List<QTask> taskList)
+        public void RefreshListTasks(List<QTask> taskList, bool deactivateButtons)
         {
             TaskList = taskList;
             try
@@ -81,8 +87,11 @@ namespace Quorra.App
                 // ignored
             }
             RefreshTaskFilteredCounts();
-            ButtonEditTask.IsEnabled = false;
-            ButtonRemoveTask.IsEnabled = false;
+            if (deactivateButtons)
+            {
+                ButtonEditTask.IsEnabled = false;
+                ButtonRemoveTask.IsEnabled = false;
+            }
         }
 
         public void RefreshUserFilteredCounts()
@@ -125,17 +134,17 @@ namespace Quorra.App
                 {
                     case "TabItemUsers":
                     {
-                        RefreshListUsers(_dbContext.GetUsers().ToList());
+                        RefreshListUsers(_dbContext.GetUsers().ToList(), true);
                         break;
                     }
                     case "TabItemProjects":
                     {
-                        RefreshListProjects(_dbContext.GetProjects().ToList());
+                        RefreshListProjects(_dbContext.GetProjects().ToList(), true);
                         break;
                     }
                     case "TabItemTasks":
                     {
-                        RefreshListTasks(_dbContext.GetTasks().ToList());
+                        RefreshListTasks(_dbContext.GetTasks().ToList(), true);
                         break;
                     }
                     case "TabItemMessenger":
@@ -188,7 +197,7 @@ namespace Quorra.App
                 try
                 {
                     _dbContext.RemoveUser(_selectedUser);
-                    RefreshListUsers(_dbContext.GetUsers().ToList());
+                    RefreshListUsers(_dbContext.GetUsers().ToList(), true);
                     // Po vymazani je potrebne znova vypnut tlacidla Remove a Edit
                 }
                 catch (Exception exception)
@@ -232,7 +241,7 @@ namespace Quorra.App
 
             // Aktualizujem vsetky potrebne hodnoty
             UserList = _dbContext.ApplyFilterUsers(userName, userRoles);
-            RefreshListUsers(UserList);
+            RefreshListUsers(UserList, true);
         }
 
         private void ListViewUsers_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -275,7 +284,7 @@ namespace Quorra.App
                 try
                 {
                     _dbContext.RemoveProject(_selectedProject);
-                    RefreshListProjects(_dbContext.GetProjects().ToList());
+                    RefreshListProjects(_dbContext.GetProjects().ToList(), true);
                 }
                 catch (Exception exception)
                 {
@@ -294,7 +303,7 @@ namespace Quorra.App
 
             ProjectList =
                 _dbContext.ApplyFilterProjects(projectName, productOwnerName, estimatedEndFrom, estimatedEndTo);
-            RefreshListProjects(ProjectList);
+            RefreshListProjects(ProjectList, true);
         }
 
         private void ListViewTasks_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
@@ -327,7 +336,7 @@ namespace Quorra.App
                 try
                 {
                     _dbContext.RemoveTask(_selectedTask);
-                    RefreshListTasks(_dbContext.GetTasks().ToList());
+                    RefreshListTasks(_dbContext.GetTasks().ToList(), true);
                 }
                 catch (Exception exception)
                 {

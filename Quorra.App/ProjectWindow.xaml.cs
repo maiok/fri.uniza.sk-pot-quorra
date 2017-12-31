@@ -79,7 +79,7 @@ namespace Quorra.App
 
                     _dbContext.UpdateProject(_project);
                 }
-                _mainWindow.RefreshListProjects(_dbContext.GetProjects().ToList());
+                _mainWindow.RefreshListProjects(_dbContext.GetProjects().ToList(), false);
                 Close();
             }
         }
