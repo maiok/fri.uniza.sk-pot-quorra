@@ -18,10 +18,10 @@ namespace Quorra.Library
         /// <summary>
         /// Vlastnik projektu, ktory to financuje.
         /// </summary>
-        int ProductOwnerId { get; set; }
+        int? ProductOwnerId { get; set; }
         /// <summary>
         /// Odhadovany datum ukoncenia projektu.
         /// </summary>
-        DateTime EstimatedEnd { get; set; }
+        DateTime? EstimatedEnd { get; set; }
     }
 }

@@ -3,10 +3,208 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Quorra.App"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="Quorra - Task Management System" Height="650" Width="1000" WindowStartupLocation="CenterScreen">
     <Grid>
-        
+        <TabControl Margin="0,25,0,0" SelectionChanged="TabControl_SelectionChanged" Height="593.7">
+            <TabItem Name="TabItemUsers" Header="Používatelia/Investori">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="100"/>
+                        <RowDefinition Height="20"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <GroupBox Header="Filter" Height="100" VerticalAlignment="Top" Grid.ColumnSpan="2" Margin="10,0">
+                        <Grid Margin="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="3*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="3*"/>
+                                <RowDefinition Height="5*"/>
+                                <RowDefinition Height="5*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Meno:" VerticalAlignment="Bottom" Height="16" Width="35" Margin="0"/>
+                            <TextBox Name="TextBoxFilterUserName" Height="20" Margin="0,5,5,5" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Row="1"
+                                     Grid.Column="0" />
+                            <Button Name="ButtonApplyFilterUsers" Content="Aplikuj filter" Margin="0" Grid.Row="2" Grid.ColumnSpan="4"
+                                    Grid.Column="0" Height="20" Click="ButtonApplyFilterUsers_Click"/>
+                            <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="0" TextWrapping="Wrap" VerticalAlignment="Bottom"
+                                       Grid.Row="0" Grid.ColumnSpan="3"><Run Text="Pou"/><Run Text="žívateľská rola:"/></TextBlock>
+                            <CheckBox Name="CheckBoxProductOwner" Content="Investor" Grid.Column="1" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top"/>
+                            <CheckBox Name="CheckBoxProjectManager" Content="Projektový manažér" Grid.Column="1" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Margin="0,15,0,0"/>
+                            <CheckBox Name="CheckBoxBackendDeveloper" Content="Backend Developer" Grid.Column="2" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top"/>
+                            <CheckBox Name="CheckBoxFrontendDeveloper" Content="Frontend Developer" Grid.Column="2" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Margin="0,15,0,0"/>
+                            <CheckBox Name="CheckBoxSystemAdmin" Content="Systémový administrátor" Grid.Column="3" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top"/>
+                            <CheckBox Name="CheckBoxTester" Content="Tester" Grid.Column="3" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Margin="0,15,0,0"/>
+
+                        </Grid>
+                    </GroupBox>
+                    <ListView Name="ListViewUsers" Margin="10,0,0,10" ItemsSource="{Binding UserList}" Grid.Row="2"
+                              Grid.Column="0" VerticalContentAlignment="Top"
+                              d:DataContext="{d:DesignData }" SelectionMode="Single" SelectionChanged="ListViewUsers_SelectionChanged" MouseDoubleClick="ListViewUsers_OnMouseDoubleClick">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn DisplayMemberBinding="{Binding Name}" Header="Meno používateľa" Width="150"/>
+                                <GridViewColumn DisplayMemberBinding="{Binding UserRole}" Header="Používatelská rola" Width="150"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <Button Name="ButtonAddUser" Content="Pridať používateľa" Grid.Column="1" Margin="10,0" Grid.Row="2" VerticalAlignment="Top" Height="30" Click="ButtonAddUser_Click" Background="#FFDDDDDD"/>
+                    <Button Name="ButtonEditUser" Content="Editovať používateľa" Grid.Column="1" Margin="10,35,10,0" Grid.Row="2" VerticalAlignment="Top" Height="30" IsEnabled="False" Click="ButtonEditUser_Click"/>
+                    <Button Name="ButtonRemoveUser" Content="Zmazať používateľa" Grid.Column="1" Margin="10,70,10,0" Grid.Row="2" VerticalAlignment="Top" Height="30" Background="#FFFFA1A1" IsEnabled="False" Click="ButtonRemoveUser_Click"/>
+                    <TextBlock HorizontalAlignment="Left" Margin="10,0,0,0" Grid.Row="1" Grid.Column="0"
+                               TextWrapping="Wrap" VerticalAlignment="Top"><Run Text="Filtrovan"/><Run Text="é položky:"/></TextBlock>
+                    <TextBlock Name="TextBlockUsersFiltered" HorizontalAlignment="Left" Margin="114,0,0,0" Grid.Row="1"
+                               Grid.Column="0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" TextAlignment="Right"/>
+                    <TextBlock HorizontalAlignment="Left" Margin="169,0,0,0" Grid.Row="1" Grid.Column="0"
+                               TextWrapping="Wrap" Text="/" VerticalAlignment="Top"/>
+                    <TextBlock Name="TextBlockUsersCount" HorizontalAlignment="Left" Margin="179,0,0,0" Grid.Row="1"
+                               Grid.Column="0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50"/>
+                </Grid>
+            </TabItem>
+            <TabItem Name="TabItemProjects" Header="Projekty">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="100"/>
+                        <RowDefinition Height="20"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <GroupBox Header="Filter" Height="100" VerticalAlignment="Top" Grid.ColumnSpan="2" Margin="10,0">
+                        <Grid Margin="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="318*"/>
+                                <ColumnDefinition Width="318*"/>
+                                <ColumnDefinition Width="159*"/>
+                                <ColumnDefinition Width="160*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="3*"/>
+                                <RowDefinition Height="5*"/>
+                                <RowDefinition Height="5*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Názov projektu:" VerticalAlignment="Bottom" Margin="0"/>
+                            <TextBox Name="TextBoxFilterProjectName" Height="20" Margin="0,5,5,5" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Row="1"
+                                     Grid.Column="0" />
+                            <Button Name="ButtonApplyFilterProjects" Content="Aplikuj filter" Margin="0,5" Grid.Row="2" Grid.ColumnSpan="4" Grid.Column="0"
+                                    Height="20" Click="ButtonApplyFilterProjects_Click"/>
+                            <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="0" TextWrapping="Wrap" VerticalAlignment="Bottom"
+                                       Grid.Row="0"><Run Text="Zodpoved"/><Run Text="ná osoba:"/></TextBlock>
+                            <TextBlock Grid.Row="0" Grid.Column="2" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Bottom" Text="Dátum ukončenia:"/>
+                            <DatePicker Name="DatePickerFilterEndFrom" Grid.Column="2" Margin="30,3,0,3" Grid.Row="1" VerticalAlignment="Center"/>
+                            <TextBox Name="TextBoxFilterOwnerName" Height="20" Margin="0,5,5,5" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Row="1" Grid.Column="1"/>
+                            <TextBlock Grid.Column="2" TextWrapping="Wrap" VerticalAlignment="Center" Text="OD" Margin="0" Width="30" Grid.Row="1" HorizontalAlignment="Left" TextAlignment="Right"/>
+                            <DatePicker Name="DatePickerFilterEndTo" Grid.Column="3" Margin="30,0,0,0" Grid.Row="1" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="3" TextWrapping="Wrap" VerticalAlignment="Center" Text="DO" Margin="0" Width="30" Grid.Row="1" HorizontalAlignment="Left" RenderTransformOrigin="5.95,0.594" TextAlignment="Right"/>
+
+                        </Grid>
+                    </GroupBox>
+                    <ListView Name="ListViewProjects" Margin="10,0,0,10" ItemsSource="{Binding ProjectList}" Grid.Row="2"
+                              Grid.Column="0" VerticalContentAlignment="Top"
+                              d:DataContext="{d:DesignData }" SelectionMode="Single" MouseDoubleClick="ListViewProjects_OnMouseDoubleClick" SelectionChanged="ListViewProjects_SelectionChanged">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn DisplayMemberBinding="{Binding Name}" Header="Názov projektu" Width="150"/>
+                                <GridViewColumn DisplayMemberBinding="{Binding ProductOwner.Name}" Header="Zodpovedná osoba" Width="150"/>
+                                <GridViewColumn DisplayMemberBinding="{Binding EstimatedEnd}" Header="Očakávaný dátum ukončenia" Width="160" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <Button Name="ButtonNewProject" Content="Nový projekt" Grid.Column="1" Margin="10,0" Grid.Row="2" VerticalAlignment="Top" Height="30" Click="ButtonNewProject_Click" />
+                    <Button Name="ButtonEditProject" Content="Editovať projekt" Grid.Column="1" Margin="10,35,10,0" Grid.Row="2" VerticalAlignment="Top" Height="30" IsEnabled="False" Click="ButtonEditProject_Click"/>
+                    <Button Name="ButtonRemoveProject" Content="Zmazať projekt" Grid.Column="1" Margin="10,70,10,0" Grid.Row="2" VerticalAlignment="Top" Height="30" Background="#FFFFA1A1" IsEnabled="False" Click="ButtonRemoveProject_Click"/>
+                    <TextBlock HorizontalAlignment="Left" Margin="10,0,0,0" Grid.Row="1" Grid.Column="0"
+                               TextWrapping="Wrap" VerticalAlignment="Top"><Run Text="Filtrovan"/><Run Text="é položky:"/></TextBlock>
+                    <TextBlock Name="TextBlockFilteredProjects" HorizontalAlignment="Left" Margin="114,0,0,0" Grid.Row="1" Grid.Column="0"
+                               TextWrapping="Wrap" VerticalAlignment="Top" Width="50" TextAlignment="Right"/>
+                    <TextBlock HorizontalAlignment="Left" Margin="169,0,0,0" Grid.Row="1" Grid.Column="0"
+                               TextWrapping="Wrap" Text="/" VerticalAlignment="Top"/>
+                    <TextBlock Name="TextBlockFilterdProjectsAll" HorizontalAlignment="Left" Margin="179,0,0,0" Grid.Row="1" Grid.Column="0"
+                               TextWrapping="Wrap" VerticalAlignment="Top" Width="50"/>
+                </Grid>
+            </TabItem>
+            <TabItem Name="TabItemTasks" Header="Úlohy" HorizontalAlignment="Left" Height="20" VerticalAlignment="Top">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="100"/>
+                        <RowDefinition Height="20"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <GroupBox Header="Filter" Height="100" VerticalAlignment="Top" Grid.ColumnSpan="2" Margin="10,0">
+                        <Grid Margin="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="3*"/>
+                                <RowDefinition Height="5*"/>
+                                <RowDefinition Height="5*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Bottom" Margin="0"><Run Text="Názov "/><Run Text="úlohy"/><Run Text=":"/></TextBlock>
+                            <TextBox Name="TextBoxFilterTaskName" Height="20" Margin="0,5,5,5" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Row="1"
+                                     Grid.Column="0" />
+                            <Button Name="ButtonApplyFilterTask" Content="Aplikuj filter" Margin="0" Grid.Row="2" Grid.ColumnSpan="4" Grid.Column="0"
+                                    Height="20"/>
+                            <TextBlock Grid.Column="1" HorizontalAlignment="Left" Margin="0" TextWrapping="Wrap" VerticalAlignment="Bottom"
+                                       Grid.Row="0" Grid.ColumnSpan="2" Text="Priradená osoba:"/>
+                            <TextBlock Grid.Row="0" Grid.Column="3" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Bottom" Text="Dátum ukončenia:"/>
+                            <DatePicker Name="DatePickerFilterTaskDeadline" Grid.Column="3" Margin="0" Grid.Row="1" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="0" Grid.Column="2" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Bottom" Text="Projekt:"/>
+                            <ComboBox Name="ComboBoxFilterTaskAssigned" Margin="0,0,5,0" Grid.Row="1" VerticalAlignment="Center" Grid.Column="1"/>
+                            <ComboBox Name="ComboBoxFilterTaskProject" Margin="0,0,5,0" Grid.Row="1" VerticalAlignment="Center" Grid.Column="2"/>
+
+                        </Grid>
+                    </GroupBox>
+                    <ListView Name="ListViewTasks" Margin="10,0,0,10" ItemsSource="{Binding TaskList}" Grid.Row="2"
+                              Grid.Column="0" VerticalContentAlignment="Top"
+                              d:DataContext="{d:DesignData }" MouseDoubleClick="ListViewTask_MouseDoubleClick" SelectionMode="Single" SelectionChanged="ListViewTasks_SelectionChanged">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn DisplayMemberBinding="{Binding Title}" Header="Názov úlohy" Width="150"/>
+                                <GridViewColumn DisplayMemberBinding="{Binding AssignedUser.Name}" Header="Priradená osoba" Width="150" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Project.Name}" Header="Projekt" Width="150" />
+                                <GridViewColumn DisplayMemberBinding="{Binding EstimatedEnd}" Header="Deadline" Width="150" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <Button Name="ButtonNewTask" Content="Nová úloha" Grid.Column="1" Margin="10,0" Grid.Row="2" VerticalAlignment="Top" Height="30" />
+                    <Button Name="ButtonEditTask" Content="Editovať úlohu" Grid.Column="1" Margin="10,35,10,0" Grid.Row="2" VerticalAlignment="Top" Height="30" IsEnabled="False"/>
+                    <Button Name="ButtonRemoveTask" Content="Zmazať úlohu" Grid.Column="1" Margin="10,70,10,0" Grid.Row="2" VerticalAlignment="Top" Height="30" Background="#FFFFA1A1" IsEnabled="False"/>
+                    <TextBlock HorizontalAlignment="Left" Margin="10,0,0,0" Grid.Row="1" Grid.Column="0"
+                               TextWrapping="Wrap" VerticalAlignment="Top"><Run Text="Filtrovan"/><Run Text="é položky:"/></TextBlock>
+                    <TextBlock Name="TextBlockFilteredTasks" HorizontalAlignment="Left" Margin="114,0,0,0" Grid.Row="1" Grid.Column="0"
+                               TextWrapping="Wrap" VerticalAlignment="Top" Width="50" TextAlignment="Right"/>
+                    <TextBlock HorizontalAlignment="Left" Margin="169,0,0,0" Grid.Row="1" Grid.Column="0"
+                               TextWrapping="Wrap" Text="/" VerticalAlignment="Top"/>
+                    <TextBlock Name="TextBlockFilteredTasksAll" HorizontalAlignment="Left" Margin="179,0,0,0" Grid.Row="1" Grid.Column="0"
+                               TextWrapping="Wrap" VerticalAlignment="Top" Width="50"/>
+                </Grid>
+            </TabItem>
+            <TabItem Name="TabItemMessenger" Header="Messenger" Height="20" VerticalAlignment="Top" HorizontalAlignment="Left" HorizontalContentAlignment="Stretch">
+                <Grid Background="#FFE5E5E5"/>
+            </TabItem>
+        </TabControl>
+        <Menu Height="20" VerticalAlignment="Top">
+            <MenuItem Header="Aplikácia" Height="20" Width="60"/>
+        </Menu>
+
     </Grid>
 </Window>

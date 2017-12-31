@@ -22,7 +22,7 @@ namespace Quorra.Library
         /// <summary>
         /// ID pouzivatela, ktora je zodpovedna za ulohu.
         /// </summary>
-        int ResponsibleUserId { get; set; }
+        int? ResponsibleUserId { get; set; }
         /// <summary>
         /// ID pouzivatela, ktora je zodpovedna za vypracovanie ulohy.
         /// </summary>

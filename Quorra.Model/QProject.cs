@@ -14,10 +14,11 @@ namespace Quorra.Model
         [Key]
         public int Id { get; set; }
         public string Name { get; set; }
-        public int ProductOwnerId { get; set; }
-        public DateTime EstimatedEnd { get; set; }
+        public int? ProductOwnerId { get; set; }
+        public DateTime? EstimatedEnd { get; set; }
 
         //  Vytvorenie vztah 1:1 k pouzivatelovi (vlastnikovi projektu)
+        [ForeignKey("ProductOwnerId")]
         public virtual QUser ProductOwner { get; set; }
 
         public override string ToString()
