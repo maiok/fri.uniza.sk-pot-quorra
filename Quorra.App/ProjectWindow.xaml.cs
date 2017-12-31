@@ -15,6 +15,7 @@ namespace Quorra.App
         private readonly QuorraContext _dbContext;
         private readonly MainWindow _mainWindow;
         private readonly QProject _project;
+
         public readonly List<QUser> UsersList;
 
         public ProjectWindow(QProject project, MainWindow mainWindow, QuorraContext dbContext)

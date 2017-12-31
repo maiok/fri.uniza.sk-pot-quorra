@@ -23,7 +23,7 @@ namespace Quorra.Model
 
         public override string ToString()
         {
-            return $"Project: {Name}, ProductOwner: {ProductOwner.Name}, EstimatedEnd: {EstimatedEnd}";
+            return $"Project: {Name}, ProductOwner: {ProductOwner}, EstimatedEnd: {EstimatedEnd}";
         }
     }
 }

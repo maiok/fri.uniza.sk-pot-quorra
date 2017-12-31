@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.SqlTypes;
 using System.Linq;
+using System.Threading.Tasks;
 using Quorra.Library;
 
 namespace Quorra.Model
@@ -59,6 +61,26 @@ namespace Quorra.Model
             }
         }
 
+        public void UpdateTask(QTask task)
+        {
+            if (task != null)
+            {
+                QTask taskToUpdate = GetTaskById(task.Id);
+                QTasks.Attach(taskToUpdate);
+                var entry = Entry(taskToUpdate);
+
+                entry.Property(t => t.Title).IsModified = true;
+                entry.Property(t => t.Description).IsModified = true;
+                entry.Property(t => t.ResponsibleUserId).IsModified = true;
+                entry.Property(t => t.AssignedUserId).IsModified = true;
+                entry.Property(t => t.ProjectId).IsModified = true;
+                entry.Property(t => t.IsPrivate).IsModified = true;
+                entry.Property(t => t.EstimatedEnd).IsModified = true;
+
+                SaveChanges();
+            }
+        }
+
         public void RemoveUser(QUser user)
         {
             // EF nepodporuje Cascade Nullable, takze to potrebujem osetrit predtym ako sa zavola Remove
@@ -71,7 +93,15 @@ namespace Quorra.Model
 
         public void RemoveProject(QProject project)
         {
+            // Ulohy my referencuju projekt, ale ja po zmazani projektu chcem, aby mi vymazalo aj vsetky
+            // ulohy, ktore ma projekt priradene, preto tu nenastavujem NULL
             QProjects.Remove(project);
+            SaveChanges();
+        }
+
+        public void RemoveTask(QTask task)
+        {
+            QTasks.Remove(task);
             SaveChanges();
         }
 
@@ -99,6 +129,18 @@ namespace Quorra.Model
             }
         }
 
+        private QTask GetTaskById(int id)
+        {
+            try
+            {
+                return QTasks.Find(id);
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+
         public List<QUser> ApplyFilterUsers(string userName, List<QUserRole> userRoles)
         {
             // Full select
@@ -121,7 +163,8 @@ namespace Quorra.Model
             return query.ToList();
         }
 
-        public List<QProject> ApplyFilterProjects(string projectName, string productOwnerName, DateTime? estimatedEndFrom, DateTime? estimatedEndTo)
+        public List<QProject> ApplyFilterProjects(string projectName, string productOwnerName,
+            DateTime? estimatedEndFrom, DateTime? estimatedEndTo)
         {
             var query = from p in QProjects
                 select p;
@@ -156,7 +199,7 @@ namespace Quorra.Model
 
         public void InsertTask(QTask task)
         {
-            task.Created = new DateTime().Date;
+            task.Created = DateTime.Now;
             QTasks.Add(task);
             SaveChanges();
         }

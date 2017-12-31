@@ -268,7 +268,7 @@ namespace Quorra.App
                     $@"Ste si istý, že chcete zmazať projekt {
                             _selectedProject.Name
                         }? Zmažú sa aj všetky úlohy priradené k tomuto projektu!",
-                    "Zmazanie používateľa", MessageBoxButton.OKCancel, MessageBoxImage.Warning,
+                    "Zmazanie projektu", MessageBoxButton.OKCancel, MessageBoxImage.Warning,
                     MessageBoxResult.Cancel);
             if (result == MessageBoxResult.OK)
             {
@@ -279,7 +279,7 @@ namespace Quorra.App
                 }
                 catch (Exception exception)
                 {
-                    MessageBox.Show("Nastala neočakávaná chyba a používateľ nemohol byť vymazaný!");
+                    MessageBox.Show("Nastala neočakávaná chyba a projekt nemohol byť vymazaný!");
                     Console.WriteLine(exception);
                 }
             }
@@ -302,6 +302,39 @@ namespace Quorra.App
             _selectedTask = (QTask) ListViewTasks.SelectedItem;
             ButtonEditTask.IsEnabled = true;
             ButtonRemoveTask.IsEnabled = true;
+        }
+
+        private void ButtonNewTask_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new TaskEditWindow(_dbContext, this, null);
+            dialog.Show();
+        }
+
+        private void ButtonEditTask_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new TaskEditWindow(_dbContext, this, _selectedTask);
+            dialog.Show();
+        }
+
+        private void ButtonRemoveTask_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBoxResult result =
+                MessageBox.Show($@"Ste si istý, že chcete zmazať úlohu {_selectedTask.Title}?",
+                    "Zmazanie úlohy", MessageBoxButton.OKCancel, MessageBoxImage.Warning,
+                    MessageBoxResult.Cancel);
+            if (result == MessageBoxResult.OK)
+            {
+                try
+                {
+                    _dbContext.RemoveTask(_selectedTask);
+                    RefreshListTasks(_dbContext.GetTasks().ToList());
+                }
+                catch (Exception exception)
+                {
+                    MessageBox.Show("Nastala neočakávaná chyba a úloha nemohla byť vymazaná!");
+                    Console.WriteLine(exception);
+                }
+            }
         }
     }
 }
