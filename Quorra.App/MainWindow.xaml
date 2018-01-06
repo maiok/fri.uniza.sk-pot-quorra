@@ -6,7 +6,7 @@
         mc:Ignorable="d"
         Title="Quorra - Task Management System" Height="650" Width="1000" WindowStartupLocation="CenterScreen">
     <Grid>
-        <TabControl Margin="0,25,0,0" SelectionChanged="TabControl_SelectionChanged" Height="593.7">
+        <TabControl Margin="0,25,0,0" SelectionChanged="TabControl_SelectionChanged">
             <TabItem Name="TabItemUsers" Header="Používatelia/Investori">
                 <Grid Background="#FFE5E5E5">
                     <Grid.ColumnDefinitions>
@@ -306,7 +306,36 @@
             </TabItem>
             <TabItem Name="TabItemMessenger" Header="Messenger" Height="20" VerticalAlignment="Top"
                      HorizontalAlignment="Left" HorizontalContentAlignment="Stretch">
-                <Grid Background="#FFE5E5E5" />
+                <Grid Background="#FFE5E5E5" >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="280"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="120"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="30"/>
+                    </Grid.RowDefinitions>
+                    <ListView Margin="10,20,10,0" Grid.Row="1" Grid.ColumnSpan="3">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <TextBlock HorizontalAlignment="Left" Margin="10,0,0,0" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top"><Run Text="Spr"/><Run Text="ávy:"/></TextBlock>
+                    <TextBlock HorizontalAlignment="Left" Margin="10,7,0,7" TextWrapping="Wrap" Text="Prihlás ma ako:" VerticalAlignment="Center"/>
+                    <ComboBox HorizontalAlignment="Left" Margin="94,4,0,4" VerticalAlignment="Center" Width="120"/>
+                    <Button Content="Prihlás" HorizontalAlignment="Left" Margin="219,5,0,5" VerticalAlignment="Center" Width="75" Grid.ColumnSpan="2"/>
+                    <TextBlock Margin="0,0,10,0" TextWrapping="Wrap" Text="zatiaľ nikto" VerticalAlignment="Center" Grid.Column="2"/>
+                    <TextBlock HorizontalAlignment="Right" Margin="0,0,5,0" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="1"><Run Text="Prihl"/><Run Text="ásený:"/></TextBlock>
+                    <TextBlock HorizontalAlignment="Left" Margin="10,7,0,7" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Center"><Run Text="Spr"/><Run Text="áva pre:"/></TextBlock>
+                    <ComboBox HorizontalAlignment="Left" Margin="74,4,0,4" Grid.Row="2" VerticalAlignment="Center" Width="140"/>
+                    <TextBlock HorizontalAlignment="Right" Margin="0" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Center"><Run Text="Spr"/><Run Text="áva:"/></TextBlock>
+                    <TextBox Height="23" Margin="5,0,0,0" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="1"/>
+                    <Button Content="Odošli" Grid.Column="2" Margin="5,0,10,0" Grid.Row="2" VerticalAlignment="Center"/>
+                </Grid>
             </TabItem>
         </TabControl>
         <Menu Height="20" VerticalAlignment="Top">
