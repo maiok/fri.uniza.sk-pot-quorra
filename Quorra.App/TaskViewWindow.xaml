@@ -1,0 +1,46 @@
+﻿<Window x:Class="Quorra.App.TaskViewWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Prehľad o úlohe" Height="367.576" Width="410.303" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="2*"/>
+        </Grid.RowDefinitions>
+        <TextBlock Margin="10,0,0,0" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Right"><Run Text="N"/><Run Text="ázov úlohy:"/></TextBlock>
+        <TextBlock Margin="10,0,0,0" Grid.Row="2" Grid.Column="0" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Right" Text="Popis:"/>
+        <TextBlock Margin="10,0,0,0" Grid.Row="3" Grid.Column="0" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Right" Text="Zodpovedná osoba:"/>
+        <TextBlock Margin="10,0,0,0" Grid.Row="4" Grid.Column="0" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Right" Text="Priradená osoba:"/>
+        <TextBlock Margin="10,0,0,0" Grid.Row="5" Grid.Column="0" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Right" Text="Projekt:"/>
+        <TextBlock Margin="10,0,0,0" Grid.Row="6" Grid.Column="0" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Right" Text="Súkromná:"/>
+        <TextBlock Margin="10,0,0,0" Grid.Row="7" Grid.Column="0" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Right" Text="Odhadovaný koniec:"/>
+        <TextBox Name="TextBoxTaskViewName" Grid.Column="1" Height="24" Margin="5,0,10,0" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Center" Grid.ColumnSpan="2"/>
+        <TextBox Name="TextBoxTaskViewDescription" Grid.Column="1" Margin="5,0,10,0" Grid.Row="2" TextWrapping="Wrap" Grid.ColumnSpan="2"/>
+        <CheckBox Name="CheckBoxTaskViewIsPrivate" Content="" Grid.Column="1" Margin="5,0,10,0" Grid.Row="6" VerticalAlignment="Center" Grid.ColumnSpan="2"/>
+        <Button Name="ButtonTaskViewCancel" Content="Zrušiť" Margin="10,0" Grid.Row="9" VerticalAlignment="Center" Grid.ColumnSpan="3"
+                Grid.Column="0" Click="ButtonTaskViewCancel_Click" />
+        <TextBlock Margin="10,0,0,0" Grid.Row="8" Grid.Column="0" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Right"><Run Text="Vytvoren"/><Run Text="é:"/></TextBlock>
+        <TextBox Name="TextBoxTaskViewResponsibleUser" Grid.Column="1" Height="24" Margin="5,0,10,0" Grid.Row="3" TextWrapping="Wrap" VerticalAlignment="Center" Grid.ColumnSpan="2"/>
+        <TextBox Name="TextBoxTaskViewAssignedUser" Grid.Column="1" Height="24" Margin="5,0,10,0" Grid.Row="4" TextWrapping="Wrap" VerticalAlignment="Center" Grid.ColumnSpan="2"/>
+        <TextBox Name="TextBoxTaskViewProject" Grid.Column="1" Height="24" Margin="5,0,10,0" Grid.Row="5" TextWrapping="Wrap" VerticalAlignment="Center" Grid.ColumnSpan="2"/>
+        <TextBox Name="TextBoxTaskViewDeadline" Grid.Column="1" Height="24" Margin="5,0,10,0" Grid.Row="7" TextWrapping="Wrap" VerticalAlignment="Center" Grid.ColumnSpan="2"/>
+        <TextBox Name="TextBoxTaskViewNameCreated" Grid.Column="1" Height="24" Margin="5,0,10,0" Grid.Row="8" TextWrapping="Wrap" VerticalAlignment="Center" Grid.ColumnSpan="2"/>
+
+    </Grid>
+</Window>

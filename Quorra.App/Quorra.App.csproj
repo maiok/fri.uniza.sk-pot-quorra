@@ -64,6 +64,9 @@
     <Compile Include="ProjectWindow.xaml.cs">
       <DependentUpon>ProjectWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TaskViewWindow.xaml.cs">
+      <DependentUpon>TaskViewWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TaskEditWindow.xaml.cs">
       <DependentUpon>TaskEditWindow.xaml</DependentUpon>
     </Compile>
@@ -85,6 +88,10 @@
     <Page Include="ProjectWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="TaskViewWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="TaskEditWindow.xaml">
       <SubType>Designer</SubType>

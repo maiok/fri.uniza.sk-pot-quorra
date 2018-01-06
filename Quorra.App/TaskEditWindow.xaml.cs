@@ -1,16 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using Quorra.Model;
 
 namespace Quorra.App
@@ -20,9 +10,9 @@ namespace Quorra.App
     /// </summary>
     public partial class TaskEditWindow : Window
     {
-        private QuorraContext _dbContext;
-        private MainWindow _mainWindow;
-        private QTask _task;
+        private readonly QuorraContext _dbContext;
+        private readonly MainWindow _mainWindow;
+        private readonly QTask _task;
 
         public readonly List<QUser> UsersList;
         public readonly List<QProject> ProjectList;

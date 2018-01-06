@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
-using System.Data.SqlTypes;
 using System.Linq;
-using System.Threading.Tasks;
 using Quorra.Library;
 
 namespace Quorra.Model
@@ -187,6 +185,43 @@ namespace Quorra.Model
             }
 
             query.OrderBy(p => p.Name);
+
+            return query.ToList();
+        }
+
+        public List<QTask> ApplyFilterTask(string taskName, QUser taskAssignedUser, QProject taskProject,
+            DateTime? taskEstimatedEndFrom,
+            DateTime? taskEstimatedEndTo, bool? taskIsPrivate)
+        {
+            var query = from t in QTasks
+                select t;
+
+            if (taskName != null)
+            {
+                query = query.Where(t => t.Title.Contains(taskName));
+            }
+            if (taskAssignedUser != null)
+            {
+                query = query.Where(t => t.AssignedUserId == taskAssignedUser.Id);
+            }
+            if (taskProject != null)
+            {
+                query = query.Where(t => t.ProjectId == taskProject.Id);
+            }
+            if (taskEstimatedEndFrom != null)
+            {
+                query = query.Where(p => p.EstimatedEnd >= taskEstimatedEndFrom);
+            }
+            if (taskEstimatedEndTo != null)
+            {
+                query = query.Where(p => p.EstimatedEnd <= taskEstimatedEndTo);
+            }
+            if (taskIsPrivate != null)
+            {
+                query = query.Where(t => t.IsPrivate == taskIsPrivate);
+            }
+
+            query.OrderBy(t => t.Title);
 
             return query.ToList();
         }

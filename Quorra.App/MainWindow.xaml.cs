@@ -14,9 +14,9 @@ namespace Quorra.App
     public partial class MainWindow : Window
     {
         private readonly QuorraContext _dbContext;
-        private List<QUser> UserList { get; set; }
-        private List<QProject> ProjectList { get; set; }
-        private List<QTask> TaskList { get; set; }
+        public List<QUser> UserList { get; set; }
+        public List<QProject> ProjectList { get; set; }
+        public List<QTask> TaskList { get; set; }
         private QUser _selectedUser;
         private QProject _selectedProject;
         private QTask _selectedTask;
@@ -31,6 +31,11 @@ namespace Quorra.App
             ProjectList = new List<QProject>();
             TaskList = new List<QTask>();
             _selectedUser = null;
+
+            // Naplnil si do filtra stavy sukromnych sprav
+            ComboBoxFilterTaskPrivate.Items.Add(new PrivateItem("Nezáleží", 2));
+            ComboBoxFilterTaskPrivate.Items.Add(new PrivateItem("Je", 1));
+            ComboBoxFilterTaskPrivate.Items.Add(new PrivateItem("Nie je", 0));
         }
 
         public void RefreshListUsers(List<QUser> userList, bool deactivateButtons)
@@ -81,6 +86,16 @@ namespace Quorra.App
             try
             {
                 ListViewTasks.ItemsSource = TaskList;
+
+                // Naplnim si combobox hodnoty do filtra
+                // Priradena osoba
+                ComboBoxFilterTaskAssigned.SelectedValuePath = "Id";
+                ComboBoxFilterTaskAssigned.DisplayMemberPath = "Name";
+                ComboBoxFilterTaskAssignedContainer.Collection = _dbContext.GetUsers().ToList();
+                // Projekty
+                ComboBoxFilterTaskProject.SelectedValuePath = "Id";
+                ComboBoxFilterTaskProject.DisplayMemberPath = "Name";
+                ComboBoxFilterProjectContainer.Collection = _dbContext.GetProjects().ToList();
             }
             catch (Exception)
             {
@@ -134,17 +149,17 @@ namespace Quorra.App
                 {
                     case "TabItemUsers":
                     {
-                        RefreshListUsers(_dbContext.GetUsers().ToList(), true);
+                        RefreshListUsers(_dbContext.GetUsers().ToList(), false);
                         break;
                     }
                     case "TabItemProjects":
                     {
-                        RefreshListProjects(_dbContext.GetProjects().ToList(), true);
+                        RefreshListProjects(_dbContext.GetProjects().ToList(), false);
                         break;
                     }
                     case "TabItemTasks":
                     {
-                        RefreshListTasks(_dbContext.GetTasks().ToList(), true);
+                        RefreshListTasks(_dbContext.GetTasks().ToList(), false);
                         break;
                     }
                     case "TabItemMessenger":
@@ -162,7 +177,9 @@ namespace Quorra.App
 
         private void ListViewTask_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            // todo otvorit vsetky udaje o ulohe
+            _selectedTask = (QTask) ListViewTasks.SelectedItem;
+            var dialog = new TaskViewWindow(_selectedTask);
+            dialog.ShowDialog();
         }
 
         private void ButtonNewProject_Click(object sender, RoutedEventArgs e)
@@ -344,6 +361,71 @@ namespace Quorra.App
                     Console.WriteLine(exception);
                 }
             }
+        }
+
+        private void ButtonApplyFilterTask_Click(object sender, RoutedEventArgs e)
+        {
+            var taskName = (TextBoxFilterTaskName.Text.Trim() != "") ? TextBoxFilterTaskName.Text : null;
+            QUser taskAssignedUser = null;
+            try
+            {
+                taskAssignedUser = (QUser) ComboBoxFilterTaskAssigned.SelectedItem;
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+            QProject taskProject = null;
+            try
+            {
+                taskProject = (QProject) ComboBoxFilterTaskProject.SelectedItem;
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+            var taskEstimatedEndFrom = DatePickerFilterTaskDeadlineFrom.SelectedDate;
+            var taskEstimatedEndTo = DatePickerFilterTaskDeadlineTo.SelectedDate;
+            bool? taskIsPrivate = null;
+            try
+            {
+                var item = (PrivateItem) ComboBoxFilterTaskPrivate.SelectedItem;
+                if (item.GetKey() == 0) taskIsPrivate = false;
+                else if (item.GetKey() == 1) taskIsPrivate = true;
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+
+            TaskList = _dbContext.ApplyFilterTask(taskName, taskAssignedUser, taskProject, taskEstimatedEndFrom,
+                taskEstimatedEndTo, taskIsPrivate);
+            RefreshListTasks(TaskList, true);
+        }
+    }
+
+    /// <summary>
+    /// Pomocna trieda pre naplnenie stavov privatnych uloh vo filtri.
+    /// </summary>
+    internal class PrivateItem
+    {
+        private readonly string _name;
+        private readonly int _key;
+
+        public PrivateItem(string name, int key)
+        {
+            _name = name;
+            _key = key;
+        }
+
+        public int GetKey()
+        {
+            return _key;
+        }
+
+        public override string ToString()
+        {
+            return _name;
         }
     }
 }
