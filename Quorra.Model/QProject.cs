@@ -5,12 +5,11 @@ using Quorra.Library;
 
 namespace Quorra.Model
 {
+    /// <summary>
+    /// Projekt ako objekt v DB
+    /// </summary>
     public class QProject : IQProject
     {
-        public QProject()
-        {
-        }
-
         [Key]
         public int Id { get; set; }
         public string Name { get; set; }

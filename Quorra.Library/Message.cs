@@ -3,6 +3,9 @@ using System.Runtime.Serialization;
 
 namespace Quorra.Library
 {
+    /// <summary>
+    /// Trieda ako kontajner spravy v chate.
+    /// </summary>
     [DataContract]
     public class Message
     {
@@ -11,15 +14,27 @@ namespace Quorra.Library
             Time = DateTime.Now;
         }
 
+        /// <summary>
+        /// Odosielatel
+        /// </summary>
         [DataMember]
         public string FromUser { get; set; }
 
+        /// <summary>
+        /// Adresat
+        /// </summary>
         [DataMember]
         public string ToUser { get; set; }
 
+        /// <summary>
+        /// Cas odoslania
+        /// </summary>
         [DataMember]
         public DateTime Time { get; set; }
 
+        /// <summary>
+        /// Sprava.
+        /// </summary>
         [DataMember]
         public string Text { get; set; }
 

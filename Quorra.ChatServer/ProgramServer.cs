@@ -1,11 +1,14 @@
 ﻿using System;
 using System.ServiceModel;
-using Quorra.Model;
 
 namespace Quorra.ChatServer
 {
     class ProgramServer
     {
+        /// <summary>
+        /// Pri spusteni sa spusti proces ako singleton sluzba pre chat.
+        /// </summary>
+        /// <param name="args"></param>
         static void Main(string[] args)
         {
             var selfHost = new ServiceHost(typeof(ChatService));

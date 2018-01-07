@@ -15,7 +15,7 @@ namespace Quorra.App
         private readonly MainWindow _mainWindow;
         private readonly QProject _project;
 
-        public readonly List<QUser> UsersList;
+        private readonly List<QUser> UsersList;
 
         public ProjectWindow(QProject project, MainWindow mainWindow, QuorraContext dbContext)
         {
@@ -45,6 +45,11 @@ namespace Quorra.App
             Close();
         }
 
+        /// <summary>
+        /// Obsluha potvrdenia zmien projektu.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ButtonOk_Click(object sender, RoutedEventArgs e)
         {
             var name = TextBoxProjectName.Text.Trim();

@@ -3,6 +3,9 @@ using Quorra.Library;
 
 namespace Quorra.Model
 {
+    /// <summary>
+    /// Trieda predstavujuca objekt pouzivatela v databaze.
+    /// </summary>
     public class QUser : IQUser
     {
         /// <summary>

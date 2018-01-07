@@ -12,9 +12,9 @@ namespace Quorra.App
     public partial class UserWindow : Window
     {
         private QuorraContext _dbContext;
-        private MainWindow _mainWindow;
-        private QUser _user;
-        public Array DataUserRoles { get; set; }
+        private readonly MainWindow _mainWindow;
+        private readonly QUser _user;
+        private Array DataUserRoles { get; set; }
 
         public UserWindow(QuorraContext dbContext, MainWindow mainWindow, QUser user)
         {
@@ -36,11 +36,21 @@ namespace Quorra.App
             }
         }
 
+        /// <summary>
+        /// Obsluha zatvorenia okna
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ButtonUserCancel_Click(object sender, RoutedEventArgs e)
         {
             Close();
         }
 
+        /// <summary>
+        /// Obsluha potvrdit zmeny
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ButtonUserOk_Click(object sender, RoutedEventArgs e)
         {
             var userName = TextBoxUserName.Text.Trim();

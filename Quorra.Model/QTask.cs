@@ -5,12 +5,11 @@ using Quorra.Library;
 
 namespace Quorra.Model
 {
+    /// <summary>
+    /// Objekt ulohy pre EF
+    /// </summary>
     public class QTask : IQTask
     {
-        public QTask()
-        {
-        }
-
         [Key]
         public int Id { get; set; }
         public string Title { get; set; }
@@ -22,6 +21,7 @@ namespace Quorra.Model
         public DateTime Created { get; set; }
         public DateTime? EstimatedEnd { get; set; }
 
+        // Cudzie kluce
         // Automaticke naplnenie atributov objektami s ID
         [ForeignKey("ResponsibleUserId")]
         public virtual QUser ResponsibleUser { get; set; }

@@ -4,27 +4,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
 using Quorra.Library;
-using Quorra.Model;
 
 namespace Quorra.ChatServer
 {
+    /// <summary>
+    /// Sme v kontexte Single, pretoze chcem mat len jeden server na ktory sa mi budu klienti pripajat.
+    /// </summary>
     [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Multiple, InstanceContextMode = InstanceContextMode.Single)]
     public class ChatService : IChatService
     {
-        private readonly QuorraContext _dbContext = new QuorraContext();
-
         // Thread-Safe dictionary, musi byt nastavene ConcurrencyMode.Multiple
         private readonly ConcurrentDictionary<string, ConnectedClient> _connectedClients =
             new ConcurrentDictionary<string, ConnectedClient>();
 
         // Evidencia vsetkych sprav
         private readonly List<Message> _messages = new List<Message>();
-
-
-        public List<Message> GetMessages()
-        {
-            throw new System.NotImplementedException();
-        }
 
         public void SendMessage(string fromUser, string toUser, string text)
         {
@@ -49,8 +43,7 @@ namespace Quorra.ChatServer
                 }
                 catch (Exception)
                 {
-                    // vynimka nastava zvycajne, ked nejaky prihlaseny uzviatel zatvori svoje okno (zrusi klienta)
-                    // todo uvolnit userName
+                    // nastalo vtedy ked som neodhlasil klienta po zatvoreni okna
                 }
             }
         }
@@ -80,16 +73,6 @@ namespace Quorra.ChatServer
 
             // Nie, je zalozeny novy uzivatel pre chat
             return true;
-        }
-
-        public bool IsUserLogged()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public bool GetUserByName(string userName)
-        {
-            throw new System.NotImplementedException();
         }
 
         public List<string> GetUserNames()

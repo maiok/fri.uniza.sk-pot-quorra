@@ -14,8 +14,8 @@ namespace Quorra.App
         private readonly MainWindow _mainWindow;
         private readonly QTask _task;
 
-        public readonly List<QUser> UsersList;
-        public readonly List<QProject> ProjectList;
+        private List<QUser> UsersList;
+        private List<QProject> ProjectList;
 
         public TaskEditWindow(QuorraContext dbContext, MainWindow mainWindow, QTask task)
         {
@@ -80,7 +80,7 @@ namespace Quorra.App
                 // Pokial nemam nastaveny task, idem vytvorit novy
                 if (_task == null)
                 {
-                    QTask task = new QTask
+                    var task = new QTask
                     {
                         Title = taskTitle,
                         Description = taskDescription,

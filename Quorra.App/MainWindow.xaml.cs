@@ -19,46 +19,44 @@ namespace Quorra.App
     public partial class MainWindow : Window
     {
         private QuorraContext _dbContext;
-        public List<QUser> UserList { get; set; }
-        public List<QProject> ProjectList { get; set; }
-        public List<QTask> TaskList { get; set; }
+        private List<QUser> UserList { get; set; }
+        private List<QProject> ProjectList { get; set; }
+        private List<QTask> TaskList { get; set; }
         private List<string> DataToUser { get; set; }
         private List<string> OnlineUsers { get; set; }
 
         private QUser _selectedUser;
         private QProject _selectedProject;
         private QTask _selectedTask;
-        private string _loggedUser = null;
-        private bool _firstEntryToMessenger = false;
+        private string _loggedUser;
+        private bool _firstEntryToMessenger;
 
-        private static DuplexChannelFactory<IChatService> _channelFactory;
         private static IChatService _server;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            _dbContext = new QuorraContext();
+            _dbContext = new QuorraContext(); // db kontext
 
-            UserList = new List<QUser>();
+            UserList = new List<QUser>(); // zoznam pouzivatelov pre listview
             ProjectList = new List<QProject>();
             TaskList = new List<QTask>();
-            DataToUser = new List<string>();
-            OnlineUsers = new List<string>();
+            DataToUser = new List<string>(); // zoznam chat pouzivatelov pre combobox
+            OnlineUsers = new List<string>(); // zoznam chat online pouzivatelov
+            _selectedUser = null; // prihlaseny pouzivatel v chate
 
-            _selectedUser = null;
-
-            // Naplnil si do filtra stavy sukromnych sprav
+            // Naplnim si do filtra stavy sukromnych sprav
             ComboBoxFilterTaskPrivate.Items.Add(new PrivateItem("Nezáleží", 2));
             ComboBoxFilterTaskPrivate.Items.Add(new PrivateItem("Je", 1));
             ComboBoxFilterTaskPrivate.Items.Add(new PrivateItem("Nie je", 0));
 
             // Pripojenie klienta na sluzbu chatu
-            _channelFactory = new DuplexChannelFactory<IChatService>(new ClientCallback(), "ChatServiceEndPoint");
-            _server = _channelFactory.CreateChannel();
+            var channelFactory = new DuplexChannelFactory<IChatService>(new ClientCallback(), "ChatServiceEndPoint");
+            _server = channelFactory.CreateChannel();
 
             // Akcia po zavreti okna
-            Closing += new CancelEventHandler(MainWindow_Closing);
+            Closing += MainWindow_Closing;
         }
 
         /// <summary>
@@ -91,6 +89,11 @@ namespace Quorra.App
             return false;
         }
 
+        /// <summary>
+        /// Aktualizovanie zoznamu pouzivatelov v systeme.
+        /// </summary>
+        /// <param name="userList"></param>
+        /// <param name="deactivateButtons"></param>
         public void RefreshListUsers(List<QUser> userList, bool deactivateButtons)
         {
             UserList = userList;
@@ -112,6 +115,11 @@ namespace Quorra.App
             }
         }
 
+        /// <summary>
+        /// Aktualizovanie zoznamu projektov v systeme.
+        /// </summary>
+        /// <param name="projectList"></param>
+        /// <param name="deactivateButtons"></param>
         public void RefreshListProjects(List<QProject> projectList, bool deactivateButtons)
         {
             ProjectList = projectList;
@@ -133,6 +141,11 @@ namespace Quorra.App
             }
         }
 
+        /// <summary>
+        /// Aktualizovanie zoznamu uloh v systeme.
+        /// </summary>
+        /// <param name="taskList"></param>
+        /// <param name="deactivateButtons"></param>
         public void RefreshListTasks(List<QTask> taskList, bool deactivateButtons)
         {
             TaskList = taskList;
@@ -162,19 +175,28 @@ namespace Quorra.App
             }
         }
 
-        public void RefreshUserFilteredCounts()
+        /// <summary>
+        /// Aktualizovanie poctov vo filtri pouzivatelov
+        /// </summary>
+        private void RefreshUserFilteredCounts()
         {
             TextBlockUsersFiltered.Text = UserList.Count.ToString();
             TextBlockUsersCount.Text = _dbContext.GetUsers().Count().ToString();
         }
 
-        public void RefreshProjectFilteredCounts()
+        /// <summary>
+        /// Aktualizovanie poctov vo filtri projektov
+        /// </summary>
+        private void RefreshProjectFilteredCounts()
         {
             TextBlockFilteredProjects.Text = ProjectList.Count.ToString();
             TextBlockFilterdProjectsAll.Text = _dbContext.GetProjects().Count().ToString();
         }
 
-        public void RefreshTaskFilteredCounts()
+        /// <summary>
+        /// Aktualizovanie poctov vo filtri Uloh
+        /// </summary>
+        private void RefreshTaskFilteredCounts()
         {
             TextBlockFilteredTasks.Text = TaskList.Count.ToString();
             TextBlockFilteredTasksAll.Text = _dbContext.GetTasks().Count().ToString();
@@ -201,6 +223,11 @@ namespace Quorra.App
             ListViewChatOnlineUsers.ItemsSource = OnlineUsers;
         }
 
+        /// <summary>
+        /// Obsluha tlacidla pri otvoreni okna pre add/edit pouzivatela
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ButtonAddUser_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new UserWindow(_dbContext, this, null);
@@ -227,26 +254,19 @@ namespace Quorra.App
             // Prepinam taby?
             try
             {
-                var tabName = ((System.Windows.FrameworkElement) e.AddedItems[0]).Name;
+                var tabName = ((FrameworkElement) e.AddedItems[0]).Name;
                 switch (tabName)
                 {
                     case "TabItemUsers":
-                    {
                         RefreshListUsers(_dbContext.GetUsers().ToList(), false);
                         break;
-                    }
                     case "TabItemProjects":
-                    {
                         RefreshListProjects(_dbContext.GetProjects().ToList(), false);
                         break;
-                    }
                     case "TabItemTasks":
-                    {
                         RefreshListTasks(_dbContext.GetTasks().ToList(), false);
                         break;
-                    }
                     case "TabItemMessenger":
-                    {
                         // Aktualizujem chat
                         try
                         {
@@ -260,16 +280,15 @@ namespace Quorra.App
                             // spusti timer, kde sa kazde 3s spusti metoda, ktora obnovi zoznam online uzivatelov
                             // ZDROJ - https://stackoverflow.com/questions/6169288/execute-specified-function-every-x-seconds
                             var timer1 = new Timer();
-                            timer1.Tick += new EventHandler(Timer_RefreshOnlineUser);
+                            timer1.Tick += Timer_RefreshOnlineUser;
                             timer1.Interval = 3000;
                             timer1.Start();
                         }
                         catch (Exception)
                         {
-                            AppendLogMessageToChat("System", "Neočakávana chyba na serveri. Správy neboli načítané.");
+                            AppendLogMessageToChat("Neočakávana chyba na serveri. Správy neboli načítané.");
                         }
                         break;
-                    }
                 }
             }
             catch (Exception)
@@ -288,6 +307,11 @@ namespace Quorra.App
             RefreshOnlineChatUsers();
         }
 
+        /// <summary>
+        /// Obsluha pri doubleclicku do zoznamu uloh, ked sa otvori modalne okno so vsetkymi podrobnostami.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ListViewTask_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             _selectedTask = (QTask) ListViewTasks.SelectedItem;
@@ -295,12 +319,22 @@ namespace Quorra.App
             dialog.ShowDialog();
         }
 
+        /// <summary>
+        /// Obsluha tlacidla pridat projekt, ktora otvori modalne okno pre add/edit
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ButtonNewProject_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new ProjectWindow(null, this, _dbContext);
             dialog.ShowDialog();
         }
 
+        /// <summary>
+        /// Obsluha pre nastavenie kontextu vybrateho pouzivatela v systeme.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ListViewUsers_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             // Nastavim kontext oznaceneho pouzivatela
@@ -310,12 +344,22 @@ namespace Quorra.App
             ButtonRemoveUser.IsEnabled = true;
         }
 
+        /// <summary>
+        /// Oblsuha pre zobrazenie modalne okna pre add/edit pouzivatela
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ButtonEditUser_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new UserWindow(_dbContext, this, _selectedUser);
             dialog.ShowDialog();
         }
 
+        /// <summary>
+        /// Vymazanie pouzivatela.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ButtonRemoveUser_Click(object sender, RoutedEventArgs e)
         {
             MessageBoxResult result =
@@ -339,33 +383,38 @@ namespace Quorra.App
             }
         }
 
+        /// <summary>
+        /// Filter pre pouzivatelov v systeme.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ButtonApplyFilterUsers_Click(object sender, RoutedEventArgs e)
         {
             var userName = (TextBoxFilterUserName.Text.Trim() != "") ? TextBoxFilterUserName.Text : null;
 
             // Tu si nastavim pole hodnot, ktore boli zaskrnute
             List<QUserRole> userRoles = new List<QUserRole>();
-            if ((bool) CheckBoxBackendDeveloper.IsChecked)
+            if (CheckBoxBackendDeveloper.IsChecked != null && (bool) CheckBoxBackendDeveloper.IsChecked)
             {
                 userRoles.Add(QUserRole.BackendDeveloper);
             }
-            if ((bool) CheckBoxFrontendDeveloper.IsChecked)
+            if (CheckBoxFrontendDeveloper.IsChecked != null && (bool) CheckBoxFrontendDeveloper.IsChecked)
             {
                 userRoles.Add(QUserRole.FrontendDeveloper);
             }
-            if ((bool) CheckBoxProductOwner.IsChecked)
+            if (CheckBoxProductOwner.IsChecked != null && (bool) CheckBoxProductOwner.IsChecked)
             {
                 userRoles.Add(QUserRole.ProductOwner);
             }
-            if ((bool) CheckBoxProjectManager.IsChecked)
+            if (CheckBoxProjectManager.IsChecked != null && (bool) CheckBoxProjectManager.IsChecked)
             {
                 userRoles.Add(QUserRole.ProjectManager);
             }
-            if ((bool) CheckBoxSystemAdmin.IsChecked)
+            if (CheckBoxSystemAdmin.IsChecked != null && (bool) CheckBoxSystemAdmin.IsChecked)
             {
                 userRoles.Add(QUserRole.SystemAdministrator);
             }
-            if ((bool) CheckBoxTester.IsChecked)
+            if (CheckBoxTester.IsChecked != null && (bool) CheckBoxTester.IsChecked)
             {
                 userRoles.Add(QUserRole.Tester);
             }
@@ -376,18 +425,33 @@ namespace Quorra.App
             RefreshListUsers(UserList, true);
         }
 
+        /// <summary>
+        /// Edit pouzivatela cez double click v zozname
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ListViewUsers_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             ListViewUsers_SelectionChanged(sender, null);
             ButtonEditUser_Click(sender, null);
         }
 
+        /// <summary>
+        /// Edit projektu cez double click v zozname
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ListViewProjects_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             ListViewProjects_SelectionChanged(sender, null);
             ButtonEditProject_Click(sender, null);
         }
 
+        /// <summary>
+        /// Obsluha pre nastavenie kontextu vybrateho projektu v systeme.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ListViewProjects_SelectionChanged(object sender,
             System.Windows.Controls.SelectionChangedEventArgs e)
         {
@@ -396,12 +460,22 @@ namespace Quorra.App
             ButtonRemoveProject.IsEnabled = true;
         }
 
+        /// <summary>
+        /// editacia projektu
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ButtonEditProject_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new ProjectWindow(_selectedProject, this, _dbContext);
             dialog.Show();
         }
 
+        /// <summary>
+        /// Vymazanie projektu.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ButtonRemoveProject_Click(object sender, RoutedEventArgs e)
         {
             MessageBoxResult result =
@@ -427,6 +501,11 @@ namespace Quorra.App
             }
         }
 
+        /// <summary>
+        /// Filter pre projekty.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ButtonApplyFilterProjects_Click(object sender, RoutedEventArgs e)
         {
             var projectName = (TextBoxFilterProjectName.Text.Trim() != "") ? TextBoxFilterProjectName.Text : null;
@@ -440,6 +519,11 @@ namespace Quorra.App
             RefreshListProjects(ProjectList, true);
         }
 
+        /// <summary>
+        /// Obsluha pre nastavenie kontextu vybratej ulohy v systeme.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ListViewTasks_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             _selectedTask = (QTask) ListViewTasks.SelectedItem;
@@ -447,18 +531,33 @@ namespace Quorra.App
             ButtonRemoveTask.IsEnabled = true;
         }
 
+        /// <summary>
+        /// Nova uloha.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ButtonNewTask_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new TaskEditWindow(_dbContext, this, null);
             dialog.Show();
         }
 
+        /// <summary>
+        /// Edit ulohy.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ButtonEditTask_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new TaskEditWindow(_dbContext, this, _selectedTask);
             dialog.Show();
         }
 
+        /// <summary>
+        /// Vymazanie ulohy.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ButtonRemoveTask_Click(object sender, RoutedEventArgs e)
         {
             MessageBoxResult result =
@@ -481,6 +580,11 @@ namespace Quorra.App
             }
         }
 
+        /// <summary>
+        /// Filter pre ulohy.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ButtonApplyFilterTask_Click(object sender, RoutedEventArgs e)
         {
             var taskName = (TextBoxFilterTaskName.Text.Trim() != "") ? TextBoxFilterTaskName.Text : null;
@@ -522,6 +626,11 @@ namespace Quorra.App
             RefreshListTasks(TaskList, true);
         }
 
+        /// <summary>
+        /// Login pouzivatela v chate.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ButtonChatLogin_Click(object sender, RoutedEventArgs e)
         {
             if (TextBoxChatUserName.Text.Trim() == "")
@@ -553,11 +662,16 @@ namespace Quorra.App
                 }
                 catch (Exception)
                 {
-                    AppendLogMessageToChat("System", "Neočakávana chyba na serveri. Neboli ste prihlásený.");
+                    AppendLogMessageToChat("Neočakávana chyba na serveri. Neboli ste prihlásený.");
                 }
             }
         }
 
+        /// <summary>
+        /// Poslanie spravy do chatu.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ButtonChatSendMessage_Click(object sender, RoutedEventArgs e)
         {
             var toUser = ComboBoxChatListUsers.Text.Trim() != "Všetci" ? ComboBoxChatListUsers.Text : null;
@@ -576,20 +690,33 @@ namespace Quorra.App
             }
             catch (Exception)
             {
-                AppendLogMessageToChat("System", "Neočakávana chyba na serveri. Správa nebola odoslaná.");
+                AppendLogMessageToChat("Neočakávana chyba na serveri. Správa nebola odoslaná.");
             }
         }
 
+        /// <summary>
+        /// Nova sprava do chatu.
+        /// </summary>
+        /// <param name="message"></param>
         public void AppendMessageToChat(Message message)
         {
             ListViewChat.Items.Add(message);
         }
 
-        public void AppendLogMessageToChat(string from, string message)
+        /// <summary>
+        /// Nova logovacia sprava do chatu (zvycajne pri chybach)
+        /// </summary>
+        /// <param name="message"></param>
+        private void AppendLogMessageToChat(string message)
         {
             ListViewChat.Items.Add(message);
         }
 
+        /// <summary>
+        /// Odhlasenie aktualne prihlaseneho pouzivatela z chatu.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ButtonChatLogout_Click(object sender, RoutedEventArgs e)
         {
             if (!UserLogout()) return;
@@ -601,6 +728,11 @@ namespace Quorra.App
             ButtonChatSendMessage.IsEnabled = false;
         }
 
+        /// <summary>
+        /// Zatvorenie aplikacie
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MenuItemCloseApp_Click(object sender, RoutedEventArgs e)
         {
             Close();
