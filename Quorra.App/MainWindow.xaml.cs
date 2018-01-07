@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.ServiceModel;
 using System.Windows;
@@ -49,7 +50,29 @@ namespace Quorra.App
             // Pripojenie klienta na sluzbu chatu
             _channelFactory = new DuplexChannelFactory<IChatService>(new ClientCallback(), "ChatServiceEndPoint");
             _server = _channelFactory.CreateChannel();
-//            ((IContextChannel) _server).OperationTimeout = TimeSpan.FromMinutes(2);
+
+            Closing += new CancelEventHandler(MainWindow_Closing);
+        }
+
+        /// <summary>
+        /// Ked zavriem okno a je prihlaseny uzivatel do chatu, uvolnim aby vznikol priestor pre dalsie prihlasenia
+        /// ZDROJ - https://stackoverflow.com/questions/3683450/handling-the-window-closing-event-with-wpf-mvvm-light-toolkit
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MainWindow_Closing(object sender, CancelEventArgs e)
+        {
+            if (_loggedUser != null)
+            {
+                try
+                {
+                    _server.Logout(_loggedUser);
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Neočakávana chyba na serveri. Užívateľ nebol uvoľnený.");
+                }
+            }
         }
 
         public void RefreshListUsers(List<QUser> userList, bool deactivateButtons)
@@ -141,7 +164,7 @@ namespace Quorra.App
             TextBlockFilteredTasksAll.Text = _dbContext.GetTasks().Count().ToString();
         }
 
-        public void RefreshComboboxChatUsers()
+        private void RefreshComboboxChatUsers()
         {
             var usersPom = new List<string> {"Všetci"};
             usersPom.AddRange(_server.GetUserNames());

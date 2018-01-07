@@ -24,5 +24,8 @@ namespace Quorra.Library
 
         [OperationContract]
         List<string> GetUserNames();
+
+        [OperationContract]
+        bool Logout(string username);
     }
 }

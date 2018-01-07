@@ -91,5 +91,13 @@ namespace Quorra.ChatServer
         {
             return _connectedClients.Select(client => client.Key).ToList();
         }
+
+        public bool Logout(string username)
+        {
+            var key = (from client in _connectedClients where client.Key == username select client.Key).FirstOrDefault();
+            if (key == null) return false;
+            _connectedClients.TryRemove(key, out _);
+            return true;
+        }
     }
 }
