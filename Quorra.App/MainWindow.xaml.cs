@@ -486,7 +486,7 @@ namespace Quorra.App
             TextBoxChatMessage.Clear();
             try
             {
-                _server.SendMessage(_loggedUser, toUser, TextBoxChatMessage.Text);
+                _server.SendMessage(_loggedUser, toUser, message.Text);
             }
             catch (Exception)
             {

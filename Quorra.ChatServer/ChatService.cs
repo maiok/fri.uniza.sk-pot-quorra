@@ -36,6 +36,8 @@ namespace Quorra.ChatServer
             {
                 // podmienka ze neodoslem sebe, resp. tomu kto odosiela
                 if (string.Equals(client.Key, fromUser, StringComparison.CurrentCultureIgnoreCase)) continue;
+                // podmienka odoslania sukromnej spravy len adresatovi alebo verejnu spravu vsetkym
+                if (toUser != null && toUser != client.Key) continue;
                 try
                 {
                     client.Value.Connection.ShowMessage(message);
