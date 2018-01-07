@@ -310,15 +310,16 @@
                 <Grid Background="#FFE5E5E5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="280" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="120" />
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="100" />
+                        <ColumnDefinition Width="100" />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="30" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="30" />
                     </Grid.RowDefinitions>
-                    <ListView Name="ListViewChat" Margin="10,20,10,0" Grid.Row="1" Grid.ColumnSpan="3"
+                    <ListView Name="ListViewChat" Margin="10,20,10,0" Grid.Row="1" Grid.ColumnSpan="2"
                               ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                               HorizontalContentAlignment="Stretch"
                               ScrollViewer.CanContentScroll="False">
@@ -349,37 +350,48 @@
                         </ListView.ItemTemplate>
                     </ListView>
                     <TextBlock HorizontalAlignment="Left" Margin="10,0,0,0" Grid.Row="1" TextWrapping="Wrap"
-                               VerticalAlignment="Top">
+                               VerticalAlignment="Top" Height="16" Width="38">
                         <Run Text="Spr" /><Run Text="ávy:" />
                     </TextBlock>
                     <TextBlock HorizontalAlignment="Left" Margin="10,7,0,7" TextWrapping="Wrap" Text="Prihlás ma ako:"
-                               VerticalAlignment="Center" />
+                               VerticalAlignment="Center" Height="16" />
                     <Button Name="ButtonChatLogin" Content="Prihlás" HorizontalAlignment="Left" Margin="219,5,0,5"
-                            VerticalAlignment="Center" Width="75" Grid.ColumnSpan="2" Click="ButtonChatLogin_Click" />
+                            VerticalAlignment="Center" Width="75" Grid.ColumnSpan="2" Click="ButtonChatLogin_Click"
+                            Height="20" />
                     <TextBlock HorizontalAlignment="Left" Margin="10,7,0,7" Grid.Row="2" TextWrapping="Wrap"
-                               VerticalAlignment="Center">
+                               VerticalAlignment="Center" Height="16" Width="59">
                         <Run Text="Spr" /><Run Text="áva pre:" />
                     </TextBlock>
                     <ComboBox Name="ComboBoxChatListUsers" HorizontalAlignment="Left" Margin="74,4,0,4" Grid.Row="2"
-                              VerticalAlignment="Center" Width="140" ItemsSource="{Binding DataToUser}" />
-                    <TextBlock HorizontalAlignment="Right" Margin="0" Grid.Row="2" TextWrapping="Wrap"
-                               VerticalAlignment="Center">
+                              VerticalAlignment="Center" Width="140" ItemsSource="{Binding DataToUser}" Height="22" />
+                    <TextBlock HorizontalAlignment="Right" Margin="0,7" Grid.Row="2" TextWrapping="Wrap"
+                               VerticalAlignment="Center" Height="16" Width="38">
                         <Run Text="Spr" /><Run Text="áva:" />
                     </TextBlock>
-                    <TextBox Name="TextBoxChatMessage" Height="23" Margin="5,0,0,0" Grid.Row="2" TextWrapping="Wrap"
-                             VerticalAlignment="Center" Grid.Column="1" />
-                    <Button Name="ButtonChatSendMessage" Content="Odošli" Grid.Column="2" Margin="5,0,10,5"
+                    <TextBox Name="TextBoxChatMessage" Height="22" Margin="5,4,0,4" Grid.Row="2" TextWrapping="Wrap"
+                             VerticalAlignment="Center" Grid.Column="1" Grid.ColumnSpan="2" />
+                    <Button Name="ButtonChatSendMessage" Content="Odošli" Grid.Column="3" Margin="5,0,10,5"
                             Grid.Row="2" VerticalAlignment="Bottom" Click="ButtonChatSendMessage_Click"
-                            IsEnabled="False" />
-                    <TextBox Name="TextBoxChatUserName" HorizontalAlignment="Left" Height="24" Margin="94,0,0,0"
+                            IsEnabled="False" Height="20" />
+                    <TextBox Name="TextBoxChatUserName" HorizontalAlignment="Left" Height="24" Margin="94,3,0,3"
                              TextWrapping="Wrap" VerticalAlignment="Center" Width="120"
                              AutomationProperties.HelpText="Zadaj nick" />
-                    <TextBlock Name="TextBlockChatSignIn" Grid.Column="1" HorizontalAlignment="Left" Margin="19,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" Visibility="Hidden"><Run Text="Si prihl"/><Run Text="ásený"/></TextBlock>
+                    <TextBlock Name="TextBlockChatSignIn" Grid.Column="1" HorizontalAlignment="Left" Margin="19,7,0,7"
+                               TextWrapping="Wrap" VerticalAlignment="Center" Height="16" Visibility="Hidden">
+                        <Run Text="Si prihl" /><Run Text="ásený" />
+                    </TextBlock>
+                    <ListView Name="ListViewChatOnlineUsers" Grid.ColumnSpan="2" Grid.Column="2" Margin="0,20,10,0"
+                              Grid.Row="1" ItemsSource="{Binding OnlineUsers}">
+                    </ListView>
+                    <TextBlock Grid.Column="2" HorizontalAlignment="Left" Margin="0" Grid.Row="1" TextWrapping="Wrap" Text="ONLINE" VerticalAlignment="Top"/>
+                    <Button Name="ButtonChatLogout" Content="Odhlás ma" Grid.Column="3" HorizontalAlignment="Right" Margin="0,5,10,5" VerticalAlignment="Center" Width="75" IsEnabled="False" Click="ButtonChatLogout_Click"/>
                 </Grid>
             </TabItem>
         </TabControl>
         <Menu Height="20" VerticalAlignment="Top">
-            <MenuItem Header="Aplikácia" Height="20" Width="60" />
+            <MenuItem Header="Aplikácia" Height="20" Width="60" >
+                <MenuItem Name="MenuItemCloseApp" Header="Ukončiť" HorizontalAlignment="Left" Height="20" Width="140" Click="MenuItemCloseApp_Click"/>
+            </MenuItem>
         </Menu>
 
     </Grid>

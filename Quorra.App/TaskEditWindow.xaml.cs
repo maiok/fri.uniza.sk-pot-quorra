@@ -10,7 +10,7 @@ namespace Quorra.App
     /// </summary>
     public partial class TaskEditWindow : Window
     {
-        private readonly QuorraContext _dbContext;
+        private QuorraContext _dbContext;
         private readonly MainWindow _mainWindow;
         private readonly QTask _task;
 
@@ -106,9 +106,20 @@ namespace Quorra.App
 
                     _dbContext.UpdateTask(_task);
                 }
+                RecreateDbContext();
                 _mainWindow.RefreshListTasks(_dbContext.GetTasks().ToList(), false);
                 Close();
             }
         }
+
+        /// <summary>
+        /// Metoda mi znovu vytvori kontext do databazy. Potrebujem to vtedy, kedy aktualizujem data a 
+        /// potrebujem ich mat aktualizovane aj na ostatnych klientoch
+        /// </summary>
+        private void RecreateDbContext()
+        {
+            _dbContext = new QuorraContext();
+        }
+
     }
 }

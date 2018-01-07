@@ -17,6 +17,9 @@ namespace Quorra.ChatServer
         private readonly ConcurrentDictionary<string, ConnectedClient> _connectedClients =
             new ConcurrentDictionary<string, ConnectedClient>();
 
+        // Evidencia vsetkych sprav
+        private readonly List<Message> _messages = new List<Message>();
+
 
         public List<Message> GetMessages()
         {
@@ -31,6 +34,8 @@ namespace Quorra.ChatServer
                 ToUser = toUser,
                 Text = text
             };
+
+            _messages.Add(message);
 
             foreach (var client in _connectedClients)
             {
@@ -94,10 +99,21 @@ namespace Quorra.ChatServer
 
         public bool Logout(string username)
         {
-            var key = (from client in _connectedClients where client.Key == username select client.Key).FirstOrDefault();
+            var key = (from client in _connectedClients where client.Key == username select client.Key)
+                .FirstOrDefault();
             if (key == null) return false;
             _connectedClients.TryRemove(key, out _);
             return true;
+        }
+
+        public void GetAllPublicMessages()
+        {
+            var client = OperationContext.Current.GetCallbackChannel<IClient>();
+            foreach (var message in _messages)
+            {
+                if (message.ToUser != null) continue;
+                client.ShowMessage(message);
+            }
         }
     }
 }

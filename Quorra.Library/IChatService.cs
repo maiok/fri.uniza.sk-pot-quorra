@@ -27,5 +27,8 @@ namespace Quorra.Library
 
         [OperationContract]
         bool Logout(string username);
+
+        [OperationContract]
+        void GetAllPublicMessages();
     }
 }

@@ -11,7 +11,7 @@ namespace Quorra.App
     /// </summary>
     public partial class ProjectWindow : Window
     {
-        private readonly QuorraContext _dbContext;
+        private QuorraContext _dbContext;
         private readonly MainWindow _mainWindow;
         private readonly QProject _project;
 
@@ -78,9 +78,19 @@ namespace Quorra.App
 
                     _dbContext.UpdateProject(_project);
                 }
+                RecreateDbContext();
                 _mainWindow.RefreshListProjects(_dbContext.GetProjects().ToList(), false);
                 Close();
             }
+        }
+
+        /// <summary>
+        /// Metoda mi znovu vytvori kontext do databazy. Potrebujem to vtedy, kedy aktualizujem data a 
+        /// potrebujem ich mat aktualizovane aj na ostatnych klientoch
+        /// </summary>
+        private void RecreateDbContext()
+        {
+            _dbContext = new QuorraContext();
         }
     }
 }

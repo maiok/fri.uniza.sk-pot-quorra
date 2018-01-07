@@ -4,9 +4,12 @@ using System.ComponentModel;
 using System.Linq;
 using System.ServiceModel;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Input;
 using Quorra.Library;
 using Quorra.Model;
+using Message = Quorra.Library.Message;
+using MessageBox = System.Windows.MessageBox;
 
 namespace Quorra.App
 {
@@ -15,16 +18,18 @@ namespace Quorra.App
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly QuorraContext _dbContext;
+        private QuorraContext _dbContext;
         public List<QUser> UserList { get; set; }
         public List<QProject> ProjectList { get; set; }
         public List<QTask> TaskList { get; set; }
         private List<string> DataToUser { get; set; }
+        private List<string> OnlineUsers { get; set; }
 
         private QUser _selectedUser;
         private QProject _selectedProject;
         private QTask _selectedTask;
         private string _loggedUser = null;
+        private bool _firstEntryToMessenger = false;
 
         private static DuplexChannelFactory<IChatService> _channelFactory;
         private static IChatService _server;
@@ -39,6 +44,7 @@ namespace Quorra.App
             ProjectList = new List<QProject>();
             TaskList = new List<QTask>();
             DataToUser = new List<string>();
+            OnlineUsers = new List<string>();
 
             _selectedUser = null;
 
@@ -51,6 +57,7 @@ namespace Quorra.App
             _channelFactory = new DuplexChannelFactory<IChatService>(new ClientCallback(), "ChatServiceEndPoint");
             _server = _channelFactory.CreateChannel();
 
+            // Akcia po zavreti okna
             Closing += new CancelEventHandler(MainWindow_Closing);
         }
 
@@ -62,17 +69,26 @@ namespace Quorra.App
         /// <param name="e"></param>
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
+            UserLogout();
+        }
+
+        /// <summary>
+        /// Metoda mi obsluhuje odhlasenie pouzivatela
+        /// </summary>
+        private bool UserLogout()
+        {
             if (_loggedUser != null)
             {
                 try
                 {
-                    _server.Logout(_loggedUser);
+                    return _server.Logout(_loggedUser);
                 }
                 catch (Exception)
                 {
                     MessageBox.Show("Neočakávana chyba na serveri. Užívateľ nebol uvoľnený.");
                 }
             }
+            return false;
         }
 
         public void RefreshListUsers(List<QUser> userList, bool deactivateButtons)
@@ -164,19 +180,40 @@ namespace Quorra.App
             TextBlockFilteredTasksAll.Text = _dbContext.GetTasks().Count().ToString();
         }
 
-        private void RefreshComboboxChatUsers()
+        /// <summary>
+        /// Metoda mi aktualizuje zoznam prihlasenych pouzivatelov nacitanych zo servera
+        /// </summary>
+        private void RefreshOnlineChatUsers()
         {
+            // Defaultne 0 - Vsetci
+            var selectedIndex = (ComboBoxChatListUsers.SelectedIndex == -1) ? 0 : ComboBoxChatListUsers.SelectedIndex;
+            // Combobox
             var usersPom = new List<string> {"Všetci"};
             usersPom.AddRange(_server.GetUserNames());
             DataToUser = usersPom;
             ComboBoxChatListUsers.ItemsSource = DataToUser;
-            ComboBoxChatListUsers.SelectedIndex = 0; // Defaultne Vsetci
+            // Po refreshi vratim vyber na povodnu hodnotu
+            ComboBoxChatListUsers.SelectedIndex = selectedIndex;
+            // Online list
+            var onlineUserPom = new List<string>();
+            onlineUserPom.AddRange(_server.GetUserNames());
+            OnlineUsers = onlineUserPom;
+            ListViewChatOnlineUsers.ItemsSource = OnlineUsers;
         }
 
         private void ButtonAddUser_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new UserWindow(_dbContext, this, null);
             dialog.ShowDialog();
+        }
+
+        /// <summary>
+        /// Metoda mi znovu vytvori kontext do databazy. Potrebujem to vtedy, kedy aktualizujem data a 
+        /// potrebujem ich mat aktualizovane aj na ostatnych klientoch
+        /// </summary>
+        private void RecreateDbContext()
+        {
+            _dbContext = new QuorraContext();
         }
 
         /// <summary>
@@ -213,8 +250,19 @@ namespace Quorra.App
                         // Aktualizujem chat
                         try
                         {
-                            RefreshComboboxChatUsers();
-                            // todo nejaka metoda co mi zo servera vrati vsetky verejne spravy
+                            // Jednorazovo spustim nacitanie vsetkych verejnych sprav
+                            if (!_firstEntryToMessenger)
+                            {
+                                // nefunguje korektne, dlhe nacitavanie a prestane fungovat nacitavanie prihlasenych uzivatelov
+//                                _server.GetAllPublicMessages();
+                                _firstEntryToMessenger = true;
+                            }
+                            // spusti timer, kde sa kazde 3s spusti metoda, ktora obnovi zoznam online uzivatelov
+                            // ZDROJ - https://stackoverflow.com/questions/6169288/execute-specified-function-every-x-seconds
+                            var timer1 = new Timer();
+                            timer1.Tick += new EventHandler(Timer_RefreshOnlineUser);
+                            timer1.Interval = 3000;
+                            timer1.Start();
                         }
                         catch (Exception)
                         {
@@ -228,6 +276,16 @@ namespace Quorra.App
             {
                 // ignored
             }
+        }
+
+        /// <summary>
+        /// Metoda, ktoru pouziva Timer na pravidelne spustanie aktualizacie prihlasenych pouzivatelov
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Timer_RefreshOnlineUser(object sender, EventArgs e)
+        {
+            RefreshOnlineChatUsers();
         }
 
         private void ListViewTask_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -269,6 +327,7 @@ namespace Quorra.App
                 try
                 {
                     _dbContext.RemoveUser(_selectedUser);
+                    RecreateDbContext();
                     RefreshListUsers(_dbContext.GetUsers().ToList(), true);
                     // Po vymazani je potrebne znova vypnut tlacidla Remove a Edit
                 }
@@ -312,6 +371,7 @@ namespace Quorra.App
             }
 
             // Aktualizujem vsetky potrebne hodnoty
+            RecreateDbContext();
             UserList = _dbContext.ApplyFilterUsers(userName, userRoles);
             RefreshListUsers(UserList, true);
         }
@@ -356,6 +416,7 @@ namespace Quorra.App
                 try
                 {
                     _dbContext.RemoveProject(_selectedProject);
+                    RecreateDbContext();
                     RefreshListProjects(_dbContext.GetProjects().ToList(), true);
                 }
                 catch (Exception exception)
@@ -373,6 +434,7 @@ namespace Quorra.App
             var estimatedEndFrom = DatePickerFilterEndFrom.SelectedDate;
             var estimatedEndTo = DatePickerFilterEndTo.SelectedDate;
 
+            RecreateDbContext();
             ProjectList =
                 _dbContext.ApplyFilterProjects(projectName, productOwnerName, estimatedEndFrom, estimatedEndTo);
             RefreshListProjects(ProjectList, true);
@@ -408,6 +470,7 @@ namespace Quorra.App
                 try
                 {
                     _dbContext.RemoveTask(_selectedTask);
+                    RecreateDbContext();
                     RefreshListTasks(_dbContext.GetTasks().ToList(), true);
                 }
                 catch (Exception exception)
@@ -453,6 +516,7 @@ namespace Quorra.App
                 // ignored
             }
 
+            RecreateDbContext();
             TaskList = _dbContext.ApplyFilterTask(taskName, taskAssignedUser, taskProject, taskEstimatedEndFrom,
                 taskEstimatedEndTo, taskIsPrivate);
             RefreshListTasks(TaskList, true);
@@ -473,14 +537,13 @@ namespace Quorra.App
                     {
                         // Nastavim kontext noveho uzivatela
                         _loggedUser = TextBoxChatUserName.Text;
-                        // Aktualizujem combobox
-                        RefreshComboboxChatUsers();
                         // znefunkcnim nove prihlasovanie
                         TextBoxChatUserName.IsEnabled = false;
                         ButtonChatLogin.IsEnabled = false;
                         TextBlockChatSignIn.Visibility = Visibility.Visible;
-                        // zapnem tlacidlo pre odoslanie spravy
+                        // zapnem tlacidlo pre odoslanie spravy a odhlasenie
                         ButtonChatSendMessage.IsEnabled = true;
+                        ButtonChatLogout.IsEnabled = true;
                     }
                     // Nebol uspesne prihlaseny, cize uzivatel uz existuje
                     else
@@ -525,6 +588,22 @@ namespace Quorra.App
         public void AppendLogMessageToChat(string from, string message)
         {
             ListViewChat.Items.Add(message);
+        }
+
+        private void ButtonChatLogout_Click(object sender, RoutedEventArgs e)
+        {
+            if (!UserLogout()) return;
+            TextBoxChatUserName.Clear();
+            TextBoxChatUserName.IsEnabled = true;
+            ButtonChatLogin.IsEnabled = true;
+            ButtonChatLogout.IsEnabled = false;
+            TextBlockChatSignIn.Visibility = Visibility.Hidden;
+            ButtonChatSendMessage.IsEnabled = false;
+        }
+
+        private void MenuItemCloseApp_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
     }
 

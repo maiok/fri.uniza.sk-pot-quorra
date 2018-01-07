@@ -69,9 +69,19 @@ namespace Quorra.App
 
                     _dbContext.UpdateUser(_user);
                 }
+                RecreateDbContext();
                 _mainWindow.RefreshListUsers(_dbContext.GetUsers().ToList(), false);
                 Close();
             }
+        }
+
+        /// <summary>
+        /// Metoda mi znovu vytvori kontext do databazy. Potrebujem to vtedy, kedy aktualizujem data a 
+        /// potrebujem ich mat aktualizovane aj na ostatnych klientoch
+        /// </summary>
+        private void RecreateDbContext()
+        {
+            _dbContext = new QuorraContext();
         }
     }
 }
