@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.ServiceModel;
 using System.Windows;
 using System.Windows.Input;
 using Quorra.Library;
@@ -17,9 +18,15 @@ namespace Quorra.App
         public List<QUser> UserList { get; set; }
         public List<QProject> ProjectList { get; set; }
         public List<QTask> TaskList { get; set; }
+        private List<string> DataToUser { get; set; }
+
         private QUser _selectedUser;
         private QProject _selectedProject;
         private QTask _selectedTask;
+        private string _loggedUser = null;
+
+        private static DuplexChannelFactory<IChatService> _channelFactory;
+        private static IChatService _server;
 
         public MainWindow()
         {
@@ -30,12 +37,19 @@ namespace Quorra.App
             UserList = new List<QUser>();
             ProjectList = new List<QProject>();
             TaskList = new List<QTask>();
+            DataToUser = new List<string>();
+
             _selectedUser = null;
 
             // Naplnil si do filtra stavy sukromnych sprav
             ComboBoxFilterTaskPrivate.Items.Add(new PrivateItem("Nezáleží", 2));
             ComboBoxFilterTaskPrivate.Items.Add(new PrivateItem("Je", 1));
             ComboBoxFilterTaskPrivate.Items.Add(new PrivateItem("Nie je", 0));
+
+            // Pripojenie klienta na sluzbu chatu
+            _channelFactory = new DuplexChannelFactory<IChatService>(new ClientCallback(), "ChatServiceEndPoint");
+            _server = _channelFactory.CreateChannel();
+//            ((IContextChannel) _server).OperationTimeout = TimeSpan.FromMinutes(2);
         }
 
         public void RefreshListUsers(List<QUser> userList, bool deactivateButtons)
@@ -127,6 +141,15 @@ namespace Quorra.App
             TextBlockFilteredTasksAll.Text = _dbContext.GetTasks().Count().ToString();
         }
 
+        public void RefreshComboboxChatUsers()
+        {
+            var usersPom = new List<string> {"Všetci"};
+            usersPom.AddRange(_server.GetUserNames());
+            DataToUser = usersPom;
+            ComboBoxChatListUsers.ItemsSource = DataToUser;
+            ComboBoxChatListUsers.SelectedIndex = 0; // Defaultne Vsetci
+        }
+
         private void ButtonAddUser_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new UserWindow(_dbContext, this, null);
@@ -164,7 +187,16 @@ namespace Quorra.App
                     }
                     case "TabItemMessenger":
                     {
-                        // todo
+                        // Aktualizujem chat
+                        try
+                        {
+                            RefreshComboboxChatUsers();
+                            // todo nejaka metoda co mi zo servera vrati vsetky verejne spravy
+                        }
+                        catch (Exception)
+                        {
+                            AppendLogMessageToChat("System", "Neočakávana chyba na serveri. Správy neboli načítané.");
+                        }
                         break;
                     }
                 }
@@ -401,6 +433,75 @@ namespace Quorra.App
             TaskList = _dbContext.ApplyFilterTask(taskName, taskAssignedUser, taskProject, taskEstimatedEndFrom,
                 taskEstimatedEndTo, taskIsPrivate);
             RefreshListTasks(TaskList, true);
+        }
+
+        private void ButtonChatLogin_Click(object sender, RoutedEventArgs e)
+        {
+            if (TextBoxChatUserName.Text.Trim() == "")
+            {
+                MessageBox.Show("Zadaj meno používateľa!");
+            }
+            else
+            {
+                try
+                {
+                    // Bol uspesne prihlaseny?
+                    if (_server.Login(TextBoxChatUserName.Text))
+                    {
+                        // Nastavim kontext noveho uzivatela
+                        _loggedUser = TextBoxChatUserName.Text;
+                        // Aktualizujem combobox
+                        RefreshComboboxChatUsers();
+                        // znefunkcnim nove prihlasovanie
+                        TextBoxChatUserName.IsEnabled = false;
+                        ButtonChatLogin.IsEnabled = false;
+                        TextBlockChatSignIn.Visibility = Visibility.Visible;
+                        // zapnem tlacidlo pre odoslanie spravy
+                        ButtonChatSendMessage.IsEnabled = true;
+                    }
+                    // Nebol uspesne prihlaseny, cize uzivatel uz existuje
+                    else
+                    {
+                        MessageBox.Show("Takýto používateľ už existuje!");
+                    }
+                }
+                catch (Exception)
+                {
+                    AppendLogMessageToChat("System", "Neočakávana chyba na serveri. Neboli ste prihlásený.");
+                }
+            }
+        }
+
+        private void ButtonChatSendMessage_Click(object sender, RoutedEventArgs e)
+        {
+            var toUser = ComboBoxChatListUsers.Text.Trim() != "Všetci" ? ComboBoxChatListUsers.Text : null;
+
+            var message = new Message
+            {
+                FromUser = "JA",
+                ToUser = toUser,
+                Text = TextBoxChatMessage.Text
+            };
+            AppendMessageToChat(message);
+            TextBoxChatMessage.Clear();
+            try
+            {
+                _server.SendMessage(_loggedUser, toUser, TextBoxChatMessage.Text);
+            }
+            catch (Exception)
+            {
+                AppendLogMessageToChat("System", "Neočakávana chyba na serveri. Správa nebola odoslaná.");
+            }
+        }
+
+        public void AppendMessageToChat(Message message)
+        {
+            ListViewChat.Items.Add(message);
+        }
+
+        public void AppendLogMessageToChat(string from, string message)
+        {
+            ListViewChat.Items.Add(message);
         }
     }
 

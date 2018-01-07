@@ -241,17 +241,24 @@ namespace Quorra.Model
 
         public IQueryable<QUser> GetUsers()
         {
-            return QUsers;
+            var query = from u in QUsers
+                select u;
+
+            return query;
         }
 
         public IQueryable<QProject> GetProjects()
         {
-            return QProjects;
+            var query = from p in QProjects
+                select p;
+            return query;
         }
 
         public IQueryable<QTask> GetTasks()
         {
-            return QTasks;
+            var query = from t in QTasks
+                select t;
+            return query;
         }
     }
 }
